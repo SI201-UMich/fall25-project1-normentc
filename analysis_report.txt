@@ -1,0 +1,22 @@
+
+ Penguin Data Analysis Report 
+
+Calculation 1: Flipper Lengths > 200mm  
+
+Analysis by Species > 200mm:
+ Adelie    : 4.6%
+ Gentoo    : 100.0%
+ Chinstrap : 26.5%
+
+Analysis by Sex > 200mm:
+ male      : 50.0%
+ female    : 36.4%
+ NA        : 44.4%
+
+
+Calculation 2: Averages for Dream Island  
+Island analyzed: Dream
+Sample Size (Count): 124
+Average Bill Length: 44.17 mm
+Average Bill Depth: 18.34 mm
+

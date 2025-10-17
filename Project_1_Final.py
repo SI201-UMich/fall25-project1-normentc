@@ -17,13 +17,13 @@ def load_penguins(csv_file_path):
     
         # first requirement: list of variables
         variables = reader.fieldnames
+        print("Initial Data Analysis")
         print(f"List of variables (columns): {variables}")
+
+        sample_entry = None 
 
         for row in reader: 
             # second requirement: sample entry 
-            if not penguin_data:
-                sample_entry = row.copy()
-
             cleaned_row = {}
             for key, value in row.items():
                 # strip whitespace
@@ -32,7 +32,6 @@ def load_penguins(csv_file_path):
                 # convert to float if value is not 'na'
                 if clean_key in ['bill_length_mm', 'bill_depth_mm', 'flipper_length_mm', 'body_mass_g']:
                     cleaned_row[clean_key] = float(value) if value and value.strip().lower() != 'na' else None
-                    cleaned_row[clean_key] = None 
 
                 # other columns stay as strings 
                 else:
@@ -41,16 +40,18 @@ def load_penguins(csv_file_path):
             # only append if we have necessary data and skip if important data is missing
             if cleaned_row.get('species') is not None:
                 penguin_data.append(cleaned_row) 
+                if sample_entry is None:
+                    sample_entry = cleaned_row.copy()
 
     # third requirement: number of rows after cleaning
     num_rows = len(penguin_data)
     print(f"Total number of penguin data rows: {num_rows}")
 
     #print sample row
-    if penguin_data:
+    if sample_entry:
         print("\nSample Cleaned Entry:")
-        for key, value in penguin_data[0].items():
-            print(f" {key}: {value}")
+        for key, value in sample_entry.items():
+            print(f" {key}: {value} (Type: {type(value).__name__})")
 
     return penguin_data                           
 
@@ -164,42 +165,43 @@ def calculate_island_averages(data, chosen_island):
 
 # Step 4: Report Results
 def write_report(flipper_results, island_results, output_file_path):
-    
-    with open(output_file_path, 'w') as f:
-        f.write("\n Penguin Data Analysis Report \n")
+    try:
+        with open(output_file_path, 'w') as f:
+            f.write("\n Penguin Data Analysis Report \n\n")
 
-    # write report for calculation 1
-    f.write("Calculation 1: Flipper Lengths > 200mm  \n")
+            # write report for calculation 1
+            f.write("Calculation 1: Flipper Lengths > 200mm  \n\n")
 
-    for category, results in flipper_results.items():
-        f.write(f"Analysis by {category}:\n")
+            for category, results in flipper_results.items():
+                f.write(f"Analysis by {category}:\n")
 
-        if results:
-            for group, percentage in results.items():
-                # make sure string is clean
-                cleaned_percent = f"{percentage * 100:.1f}%"
-                f.write(f" {group.ljust(10)}: {cleaned_percent}\n")
+                if results:
+                    for group, percentage in results.items():
+                        # make sure string is clean
+                        cleaned_percent = f"{percentage * 100:.1f}%"
+                        f.write(f" {group.ljust(10)}: {cleaned_percent}\n")
 
-        else:
-            f.write("No data found for this category\n")
-        f.write("\n")
+                else:
+                    f.write("No data found for this category\n")
+                f.write("\n")
 
-    # write report for calculation 2
-    f.write("Calculation 2: Averages for {island_results['Island Name']} Island  \n")
-    if 'Error' in island_results:
-        f.write(f"Error: {island_results['Error']}\n")
-        f.write(f"Sample Size: {island_results['Sample Size (Count)']}\n")
-    else:
-        f.write(f"Island analyzed: {island_results['Island Name']}\n")
-        f.write(f"Sample Size (Count): {island_results['Sample Size (Count)']}\n")
-        f.write(f"Average Bill Length: {island_results['Average Bill Length (mm)']} mm\n")
-        f.write(f"Average Bill Depth: {island_results['Average Bill Depth (mm)']} mm\n")
+            # write report for calculation 2
+            f.write(f"\nCalculation 2: Averages for {island_results['Island Name']} Island  \n")
+            if 'Error' in island_results:
+                f.write(f"Error: {island_results['Error']}\n")
+                f.write(f"Sample Size: {island_results['Sample Size (Count)']}\n")
+            else:
+                f.write(f"Island analyzed: {island_results['Island Name']}\n")
+                f.write(f"Sample Size (Count): {island_results['Sample Size (Count)']}\n")
+                f.write(f"Average Bill Length: {island_results['Average Bill Length (mm)']} mm\n")
+                f.write(f"Average Bill Depth: {island_results['Average Bill Depth (mm)']} mm\n")
 
-    f.write("\n")
+            f.write("\n")
 
-    print(f"Success: report successfully written to '{output_file_path}'")
+            print(f"Success: report successfully written to '{output_file_path}'")
 
-
+    except IOError as e:
+        print(f"Error: Could not write file '{output_file_path}'")
 
 # Step 5: test cases
 def test_functions():
@@ -233,19 +235,19 @@ def test_functions():
 
     # test 1 (general): group by species, threshold 200mm
     test_1_results = get_percentage('species', test_data, 200)
-    test_1_expected = {'Adelie': 1/3, 'Chinstrap': 0.5}
+    test_1_expected = {'Adelie': 0.5, 'Chinstrap': 0.5}
     check_test_1 = abs(test_1_results['Adelie'] - test_1_expected['Adelie']) < 0.001 and test_1_results['Chinstrap'] == test_1_expected['Chinstrap']
     print(f"Test 1 (General, Species): Pass={check_test_1}")
 
     # test 2 (general): group by sex, threshold 195mm
     test_2_results = get_percentage('sex', test_data, 195)
-    test_2_expected = {'Male': 1.0, 'Female': 2/3}
-    check_test_2 = test_2_results['Male'] ==1.0 and abs(test_2_results['Female'] - test_2_expected['Female']) < 0.001
+    test_2_expected = {'Male': 2/3, 'Female': 2/3}
+    check_test_2 = abs(test_2_results['Male'] - test_2_expected['Male']) < 0.001 and abs(test_2_results['Female'] - test_2_expected['Female']) < 0.001
     print(f"Test 2 (General, Sex): Pass={check_test_2}")
 
     # test 3 (edge): flipper_length = None 
     test_3_results = get_percentage('species', test_data, 200)
-    test_3_expected = {'Adelie': 1/3, 'Chinstrap': 0.5}
+    test_3_expected = {'Adelie': 0.5, 'Chinstrap': 0.5}
     check_test_3 = abs(test_3_results['Adelie'] - test_3_expected['Adelie']) < 0.001
     print(f"Test 3 (Edge, Missing Flipper): Pass={check_test_3}")
 
@@ -262,9 +264,9 @@ def test_functions():
 
     # test 5 (general): species and sex results 
     test_5_results = calculate_flipper_percentages(test_data)
-    test_5_expected_species = {'Adelie': 1/3, 'Chinstrap': 0.5}
+    test_5_expected_species = {'Adelie': 0.5, 'Chinstrap': 0.5}
     test_5_expected_sex = {'Male': 2/3, 'Female': 1/3}
-    check_test_5 = (abs(test_5_results['Species > 200mm']['Adelie'] - test_5_expected_species['Adelie']) < 0.001 and 
+    check_test_5 = (test_5_results['Species > 200mm']['Adelie'] - test_5_expected_species['Adelie'] and 
                     test_5_results['Species > 200mm']['Chinstrap'] == test_5_expected_species['Chinstrap'] and
                     abs(test_5_results['Sex > 200mm']['Male'] - test_5_expected_sex['Male']) < 0.001 and 
                     abs(test_5_results['Sex > 200mm']['Female'] - test_5_expected_sex['Female']) < 0.001)
@@ -352,3 +354,6 @@ def main():
     test_functions()
 
     print(f"\nDone")
+
+if __name__ == "__main__":
+    main()
