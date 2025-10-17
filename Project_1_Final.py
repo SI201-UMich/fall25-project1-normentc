@@ -4,7 +4,7 @@
 # Course: SI 201, Section 006
 # Assignment: Project 1
 # Collaborators: None 
-# Gen AI Use: 
+# Gen AI Use: I worked with Google Gemini to plan the overall structure of the code, determine how the functions would call each other, and debug the errors and failed tests.
 
 
 # Step 1: Load Data
