@@ -61,11 +61,72 @@ def main():
     # call load_penguins to load the data
     penguin_data = load_penguins(data_file)
 
-# Step 2: Calculation 1  
-    #def calculate_flipper_percentages():
+
+# Step 2: Calculation 1 
+
+# helper function to calculate percentage of rows that meet criteria  
+def get_percentage(group_key, data, min_flipper_length):
+
+    # total count for each category 
+    category_counts = {}
+
+    # count of penguins that meet criteria
+    criteria_counts = {}
+
+    for record in data:
+        category = record.get(group_key)
+        flipper_length = record.get('flipper_length_mm')
+
+        # skip missing data
+        if category is None or flipper_length is None:
+            continue 
+            
+        # tally for the total counts 
+        category_counts[category] = category_counts.get(category, 0) + 1
+        criteria_counts[category] = criteria_counts.get(category, 0) 
+
+        # tally for the counts that meet the length criteria
+        if flipper_length > min_flipper_length:
+            criteria_counts[category] +=1 
+
+    # final percentages
+    group_percentages = {}
+    for category, total in category_counts.items():
+        if total > 0:
+            count = criteria_counts.get(category, 0)
+            percentage = count / total
+            group_percentages[category] = percentage 
+        else: 
+            group_percentages[category] = 0
+
+    return group_percentages 
+
+# perform calculation 1 (percent of each species and sex with flipper length greater than 200mm)
+def calculate_flipper_percentages(data):
+    min_flipper = 200
+
+    # percentages by species 
+    species_percentages = get_percentage('species', data, min_flipper)
+
+    # percentages by sex 
+    sex_percentages = get_percentage('sex', data, min_flipper)
+
+    # store results in a dict for report function 
+    flipper_results = {
+        'Species > 200mm': species_percentages,
+        'Sex > 200mm': sex_percentages
+    }
+
+    return flipper_results 
+
 
 # Step 3: Calculation 2
-    #def calculate_island_averages():
+    def calculate_island_averages(data, chosen_island):
+        total_length = 0.0
+        total_depth = 0.0
+        count = 0 
+
+        # loop through 
 
 # Step 4: Report Results
     #def write_report():
