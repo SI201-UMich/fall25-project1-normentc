@@ -112,6 +112,7 @@ def calculate_flipper_percentages(data):
 
 
 # Step 3: Calculation 2
+
     def calculate_island_averages(data, chosen_island):
         total_length = 0.0
         total_depth = 0.0
@@ -182,12 +183,21 @@ def calculate_flipper_percentages(data):
         # write report for calculation 2
         f.write("Calculation 2: Averages for {island_results['Island Name']} Island  \n")
         if 'Error' in island_results:
-            f.write(f"Error: {island_results['Error']}")
+            f.write(f"Error: {island_results['Error']}\n")
+            f.write(f"Sample Size: {island_results['Sample Size (Count)']}\n")
+        else:
+            f.write(f"Island analyzed: {island_results['Island Name']}\n")
+            f.write(f"Sample Size (Count): {island_results['Sample Size (Count)']}\n")
+            f.write(f"Average Bill Length: {island_results['Average Bill Length (mm)']} mm\n")
+            f.write(f"Average Bill Depth: {island_results['Average Bill Depth (mm)']} mm\n")
+
+        f.write("\n")
+
+        print(f"Success: report successfully written to '{output_file_path}'")
 
 
 
-
-#call to main
+# main function
 def main():
     # define file path 
     data_file = 'penguins.csv'
@@ -198,7 +208,13 @@ def main():
     # call load_penguins to load the data
     penguin_data = load_penguins(data_file)
 
-if __name__ == "__main__":
-    csv_data = load_penguins("penguins.csv")
-    for row in csv_data:
-        print(row)
+    # calculation 1
+    flipper_results = calculate_flipper_percentages(penguin_data)
+
+    # calculation 2 
+    island_results = calculate_island_averages(penguin_data, chosen_island)
+
+    # report results 
+    write_report(flipper_results, island_results, 'analysis_report.txt')
+
+    print(f"\nDone")
